@@ -1,0 +1,406 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   },
+   "source": [
+    "#### Setting up praw which allows us to work with reddit\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "outputs": [],
+   "source": [
+    "import  praw\n",
+    "import pandas as pd\n",
+    "\n",
+    "my_client_id = 'nLqFb50p3KTbWQ'\n",
+    "my_secret = 'zVGm8qyGW1lcNNbu43rxoSZ8fq7K3g'\n",
+    "my_user_agent = 'redditanalysis0'\n",
+    "reddit = praw.Reddit(client_id= my_client_id, client_secret=my_secret, user_agent= my_user_agent)\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "#### Analysing the Skincare Addiction subreddit to understand which products people use most.\n",
+    "1) Collect necessary posts.\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n",
+     "is_executing": true
+    }
+   },
+   "outputs": [
+    {
+     "ename": "SyntaxError",
+     "evalue": "invalid syntax (<ipython-input-19-64fea9d88b3e>, line 1)",
+     "output_type": "error",
+     "traceback": [
+      "\u001B[0;36m  File \u001B[0;32m\"<ipython-input-19-64fea9d88b3e>\"\u001B[0;36m, line \u001B[0;32m1\u001B[0m\n\u001B[0;31m    Analysing the Skincare Addiction subreddit\u001B[0m\n\u001B[0m              ^\u001B[0m\n\u001B[0;31mSyntaxError\u001B[0m\u001B[0;31m:\u001B[0m invalid syntax\n"
+     ]
+    }
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "outputs": [],
+   "source": [
+    "needed_word = '[shelfie]'\n",
+    "\n",
+    "hot_posts = reddit.subreddit('SkincareAddiction').hot(limit=None)\n",
+    "new_posts = reddit.subreddit('SkincareAddiction').new(limit=None)\n",
+    "rising_posts = reddit.subreddit('SkincareAddiction').rising(limit=None)\n",
+    "top_posts = reddit.subreddit('SkincareAddiction').top(limit=None)\n",
+    "controversial_posts = reddit.subreddit('SkincareAddiction').controversial(limit=None)\n",
+    "gilded_posts = reddit.subreddit('SkincareAddiction').gilded(limit=None)\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "2) Extract all posts of people posting their shelfies.\n"
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "130\n"
+     ]
+    }
+   ],
+   "source": [
+    "shelfie_posts = []\n",
+    "\n",
+    "for posts in [hot_posts,new_posts, top_posts, rising_posts,controversial_posts]:\n",
+    "    for post in posts:\n",
+    "        if needed_word in post.title.lower():\n",
+    "            shelfie_posts.append([post.title, post.score, post.id, post.subreddit, post.url, post.num_comments, post.selftext, post.created])\n",
+    "\n",
+    "shelfie_posts =  pd.DataFrame(shelfie_posts,columns=['title', 'score', 'id', 'subreddit', 'url', 'num_comments', 'body', 'created'])\n",
+    "print(len(shelfie_posts))\n",
+    "#143\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "                                                 title  score      id  \\\n",
+      "22                                Watercolor [shelfie]   7543  9vvzzx   \n",
+      "23                        [Shelfie] The duality of man   7465  f8qa0m   \n",
+      "24   [Shelfie] I’m an illustrator and drew my skinc...   7014  h9oy2y   \n",
+      "25   [Shelfie] My skincare drawer sparks joy this m...   6761  iz1i6m   \n",
+      "26   [Haul] [Shelfie] My boyfriend bought me a skin...   6667  at65xl   \n",
+      "..                                                 ...    ...     ...   \n",
+      "94   [shelfie] I was struggling with acne until my ...      0  ifn64m   \n",
+      "88       [SHELFIE] I think I​ need an Intervention! :P      0  axus2w   \n",
+      "89   [Shelfie] Too much product for a 39 year old w...      0  81kzgm   \n",
+      "93    [Shelfie] I realized my shelf is getting full...      0  ahilo0   \n",
+      "107  [shelfie] Just the essentials...I guess you co...      0  aqtgvl   \n",
+      "\n",
+      "             subreddit                                                url  \\\n",
+      "22   SkincareAddiction                https://i.redd.it/3o5mj127djx11.jpg   \n",
+      "23   SkincareAddiction                https://i.redd.it/hv9o8z044vi41.jpg   \n",
+      "24   SkincareAddiction                https://i.redd.it/yumfav9z25551.jpg   \n",
+      "25   SkincareAddiction                https://i.redd.it/avt7dhnhq4p51.jpg   \n",
+      "26   SkincareAddiction                https://i.redd.it/1vf3l4e0nyh21.jpg   \n",
+      "..                 ...                                                ...   \n",
+      "94   SkincareAddiction                    https://i.imgur.com/v9UOqjS.jpg   \n",
+      "88   SkincareAddiction                https://i.redd.it/eh4t0av1dfk21.jpg   \n",
+      "89   SkincareAddiction  https://www.reddit.com/r/SkincareAddiction/com...   \n",
+      "93   SkincareAddiction                https://i.redd.it/h7r3qpyizab21.jpg   \n",
+      "107  SkincareAddiction                https://i.redd.it/wku3u3t78og21.jpg   \n",
+      "\n",
+      "     num_comments                                               body  \\\n",
+      "22            118                                                      \n",
+      "23            229                                                      \n",
+      "24            140                                                      \n",
+      "25            217                                                      \n",
+      "26            301                                                      \n",
+      "..            ...                                                ...   \n",
+      "94              8                                                      \n",
+      "88             25                                                      \n",
+      "89             28  https://imgur.com/a/Hl47M?s=fbm\\n\\n    1. Exfo...   \n",
+      "93              2                                                      \n",
+      "107             9                                                      \n",
+      "\n",
+      "          created  \n",
+      "22   1.541899e+09  \n",
+      "23   1.582575e+09  \n",
+      "24   1.592284e+09  \n",
+      "25   1.600997e+09  \n",
+      "26   1.550801e+09  \n",
+      "..            ...  \n",
+      "94   1.598297e+09  \n",
+      "88   1.551876e+09  \n",
+      "89   1.520069e+09  \n",
+      "93   1.547899e+09  \n",
+      "107  1.550239e+09  \n",
+      "\n",
+      "[119 rows x 8 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "shelfie_posts.drop_duplicates(subset =\"title\", inplace = True)\n",
+    "shelfie_posts.sort_values('score', ascending=False, inplace = True)\n",
+    "print(shelfie_posts)\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "outputs": [],
+   "source": [
+    "shelfie_posts.to_csv(r'shelfie_posts.csv', index = False)\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "3) Find most often met words. Do some NLP shit.\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "from os import path\n",
+    "from PIL import Image\n",
+    "from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator\n",
+    "\n",
+    "import matplotlib.pyplot as plt"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "9vvzzx Watercolor [shelfie]\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": "['If you correctly guessed what all of those products were just by looking at the painting you spend too much time on this sub and we are besties ',\n 'That’s seriously super cool. I need that hanging in my bathroom.\\n',\n 'I had to do an autobiographical still life for my painting class, and thought of my skincare routine, naturally.\\n\\nProducts:\\n\\n* Vanicream moisturizer\\n* Elta MD UV Clear SPF 46\\n* Timeless Vitamin C\\n* Curology\\n\\nSkincare goals:\\n\\nProtect and defend/have good skin at 50 years old',\n \"That's the best shelfie I've seen on this sub.\",\n 'Is that Vanicream? Love that stuff. Such a good painting!',\n '[deleted]',\n 'Oh I LOVE this. You should sell these! ',\n 'Ohhhhh. I love this. ',\n 'This is the first shelfie I actually want to compliment. Really well done!',\n \"I'm been on this sub so long that I recognized all of the products XD\",\n 'Love the timeless! It’s the best. ',\n 'Beautiful use of light and shadow!',\n 'adore this',\n 'I absolutely love this. Thank you for sharing!!',\n 'LOOOVE it! good good one! <3',\n 'Yay! Some of my favorite things: watercolor and skincare! Come on over to /r/watercolorchallenge !',\n '[deleted]',\n 'omg can i pay you to paint one of MY shelf!?! ',\n 'You could make some good money doing this! Have people give you three products you paint, we pay! ',\n 'I LOVE this and I am totally going to copy you. What a fun piece!',\n 'I have used Vanicream moisturizer for over 10 years. When I was scrolling through Reddit- I had to do a double take. Thought someone had gotten a pic of my bathroom sink somehow! Great job ! ',\n 'I use all the vanicream products too!\\n\\nHad a crazy allergic reaction on my face last year and I found vanicream.\\n\\nIt saved my life and my face lol I went to a dermatologist to help with my face and when I told him I was using vanicream he was hella impressed.\\n\\nI will use it the rest of my life 💕',\n 'I love this!',\n 'Wow this picture is so pretty! Your art style is so beautiful ',\n 'Someone should pay you for this excellent art. I hate watercolor because it’s such a difficult medium to make good looking but you really brought out the vibrancy in these items and I just love the slice of life vibe this gives me! I would hang it in the bathroom above my toilet haha.',\n \"Can we guess the products? I'm gonna without looking at the comments :) I see CeraVe in the tub, maybe the blue dropper from Timeless? A CosRX bottle with a pump, & something from Paula's Choice?\",\n 'Aw I love this!',\n 'I love this more than can be reasonably explained',\n \"Oh wow, that's so neat! I enjoy watercolor art. \",\n 'I love this! As an art student and skincare enthusiast haha',\n 'Please do more ',\n 'I want that ',\n 'Has science gone too far?',\n 'Nice study :) ',\n 'I would buy this, you should sell these as bathroom prints  ',\n 'Need this on my bathroom wall 😂 I am a vanicream addict!',\n 'I really need to start doing watercolors again...',\n 'Is that some timeless and EltaMD I see? ',\n 'Nice! I recognized all but the Vitamin C right away. Have you compared it to TruSkin’s serum?',\n 'Girl you should do these on commission, I would totally pay to have a watercolor of my shelfie in my bathroom! This is beautiful.\\n\\nEdit: Just realized there were a lot of comments saying the same thing that I didn’t see because I didn’t scroll all the way 😬 Guess that just means I’m not the only one thinking it!',\n 'I love this! My new phone background ',\n 'This is so freaking good!!! I love it! What paints did you use??\\n',\n 'Sis you’re really talented ',\n 'I love this!!!!!!!!!!!!!!!!!!!! I wanna do this too ',\n 'Love this ',\n 'I would pay good money for this!',\n 'Of all the things to paint, you paint a picture of skincare products???',\n 'Looks really beautiful. where is the light coming from tho?',\n 'Lemme see that apricot scrub',\n 'Why do we have the same products 🙃',\n 'I was hoping this would happen ',\n 'I identified every product in the painting and know how much they cost — which is strange because I’ve never bought any of them. I just spend that much time researching skincare. ',\n 'Thank you! It was so fun to do ',\n 'We need a vanicream club 😂😂 perfect painting!',\n \"Hi! Even though it's not a Shelfie in the traditional sense, can you add some reviews for the products? I'm especially interested in the Vanicream moisturizer :)\\n\\nAlso this is really really cool!!\",\n \"Thanks for sharing it here, mixing up the ol' SCA posts.  Very cool.\",\n 'I love this painting. It’s so on point with today’s modern life. \\n\\nI’m sure others have asked, but any chance you want to sell?',\n \"I guessed all those right, despite the fact that I've never used any of those products, lol\",\n 'Thank you!',\n 'Yes Vanicream! I love it too. Not pictured - Vanicream facial cleanser ',\n 'I love watercolor too, it is hard as shit to not mess up ',\n 'It was very fun, I totally would do them for other people',\n 'Thanks!!!',\n 'Ha it took me years lurking on here to get to this routine ',\n 'Me too! I used to use Skinceuticals CE Ferulic and then realized this was nearly the same, and like a zillion dollars less',\n 'Thanks! I took a reference photo lying on the floor during the late afternoon ',\n 'Thank you! ',\n 'Thanks! I knew this would be the place to post it',\n 'Thanks!',\n 'OMG yes',\n \"Oooh I've never seen that, is it good?\",\n 'Sure! PM me!',\n 'PM me!!!! Would love to ',\n 'Wait no, replace PC with La Roche Posay. ',\n 'Seriously, that’d make an AMAZING addition to any bathroom ',\n 'There is something so charming and serene about this painting. I can’t quite put my finger on hey it makes me feel good!',\n 'Would love to purchase one if you ever decide to do another 😅',\n 'Yes! Count me in. I use the soap and Free & Clear shampoo/conditioner too ',\n \"preach! I am a recent Vanicream convert. it's a game changer.\",\n 'No one ever mentions Vanicream but it was literally a lifesaver for me. Especially because I live in a dry climate.',\n 'Vanicream changed my life. Screw Cerave! 🙊',\n 'Reading her product lists reminded me that my vanicream was supposed to be delivered today. Went outside and it was sitting on my porch!\\n\\nI tried it for the first time just now and love it!',\n 'Ooh can I be in the club!?? 🙋🏼\\u200d♀️',\n \"Yes! Happy to. I should preface this by saying my skin is sensitive, with a tendency for stress-reddening. \\n\\nVanicream - Thick and heavy but gentle. \\n\\nTimeless Vitamin C - Vit C has made the biggest difference for me of any skin products. The best I've ever used is Skinceuticals, but the Timeless is a close second. Prefer it to Drunk Elephant which was irritating. \\n\\nElta MD - My HG sunscreen. Would give everything else up to keep this product. \\n\\nCurology - I am using it because I have it (and use it up slowwwwly) but I don't know if I love it. My formula is a retinol, clindamycin and azelaic acid. Thinking about replacing it with Differin. \",\n 'The best cleanser ever.',\n 'May I please ask how you did the white?  Is it Gouache?  Your work is beautiful.  I respectfully disagree with the “not mess up.”  I seem to excel at that!!  Thanks for your info!',\n 'Please start selling them! ',\n \"Seconding you selling them. I'd love one.\",\n 'I have been using this every day for almost 2 years and can tell a huge difference in my skin. I turned 50 this year and I’ve gotten so many comments on how much younger my skin looks and what my secret is. ',\n ':) let us all know if you ever sell any or take requests!',\n 'do you have an intstagram? would love to see more of your stuff ',\n 'I love how you added the reflection too!',\n 'oml OML',\n 'Oh well😂 I checked. I tried. This is really cute!!',\n 'It’d be a little bit on-the-nose though, don’t you think? Like, would you hang a painting of a couch in your living room above your couch? \\n\\nLike, I get it if you’re just trying to be meta. But otherwise. ',\n 'Vanicream has a shampoo?????!!!',\n 'The only brand I use more than one product from is Vanicream/Free & Clear. The shampoo is criminally underrated!',\n 'Ooohhh tell me about it!!!',\n \"I sound like a Vanicream marketing person in this subreddit, I swear. I try to tone it down so people don't get suspicious or annoyed, haha\\n\\nCheap, huge package, extremely gentle, vegan, cruelty free... Literally all my dreams came true with this brand. It's amazing for sensitive differin users. \",\n 'Yes yes yes the only thing to save my face and hands!!!',\n \"It's so simple and gentle, I'm obsessed \",\n 'Amen!',\n 'YESSSS',\n 'Yes!!!! ',\n 'Heck yeah you can!!!!! Vanicream club members, unite!!!',\n 'The Elta has been a game changer for me! Love it',\n 'Quick question: there seems to be several Timeless Vit C products when I search it. Which one specifically do you use/think is worth the money? Thanks',\n 'Just the white of the paper/not painting in those spots ',\n 'maybe the world needs an Etsy store of skincare product paintings...',\n 'yes! PM me if you have a request!',\n \"But you don't necessarily have products out in view, or as the focal point of the room. Typically I feel like you put them away? Plus the painting is stylized and the colours are nice :)\\n\\nLots of people have paintings of instruments in their music/ living rooms, it's just a theme\",\n 'Yes, and a body wash!',\n 'Same! I am always talking about vanicream and no one ever upvotes me or says anything 😭 I think I found where I belong here 😍',\n 'I was gonna try the vanicream light. Oil skin here. I wonder maybe I’ll pick it up. Just a quick all over face neck hands chest. ',\n 'yes!!! I’m so happy to have found it. Vanicream cleanser, lotion.... please vanicream, make all the things. We bow to your greatness.',\n 'Woah.  Dang. Massive skill.  Thank you so much for sharing. ',\n 'Lol the ol’ “lotion theme”. Truly a perennial classic. \\n\\nAlso:\\n\\n>”But you don’t necessarily have products out in view,”\\n\\n \\nYou think too highly of me',\n 'Vanicream light is amazing!!!!',\n \"That's why I said necessarily. Even super tidy people sometimes have those open-faced shelving units where you can see all the items. It's just a pretty picture, with nice colors to hang up... I don't think it's weird that it's of stuff that you might have in the bathroom because it doesn't look messy or boring, and people do that all the time. Try to tell me you don't think anyone has a painting of a living room setting in the living room. Someone playing on a piano, or a family gathered together or something. It's not unusual\",\n 'Lol I think you’re taking this a little too seriously and should maybe get in touch with your imagination a little']"
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "id_to_inspect = shelfie_posts.iloc[0].id\n",
+    "print(id_to_inspect, shelfie_posts.iloc[0].title)\n",
+    "\n",
+    "submission = reddit.submission(id=id_to_inspect)\n",
+    "submission.comments.replace_more(limit=None)\n",
+    "\n",
+    "comments = []\n",
+    "\n",
+    "for top_level_comment in submission.comments.list():\n",
+    "    comments.append(top_level_comment.body)\n",
+    "comments\n",
+    "\n",
+    "\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "4.1) Collect all comments from all posts into one text\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%% md\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "outputs": [],
+   "source": [
+    "i = 0\n",
+    "comments = []\n",
+    "\n",
+    "for index, post in shelfie_posts.iterrows():\n",
+    "\n",
+    "    id_to_inspect = post.id\n",
+    "\n",
+    "    submission = reddit.submission(id=id_to_inspect)\n",
+    "    submission.comments.replace_more(limit=None)\n",
+    "\n",
+    "    for top_level_comment in submission.comments.list():\n",
+    "        comments.append(top_level_comment.body)\n",
+    "    i+=1\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "outputs": [
+    {
+     "data": {
+      "text/plain": "11739"
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(comments)\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "outputs": [
+    {
+     "ename": "FileNotFoundError",
+     "evalue": "[Errno 2] No such file or directory: 'data/all_comments.txt'",
+     "output_type": "error",
+     "traceback": [
+      "\u001B[0;31m---------------------------------------------------------------------------\u001B[0m",
+      "\u001B[0;31mFileNotFoundError\u001B[0m                         Traceback (most recent call last)",
+      "\u001B[0;32m<ipython-input-10-93bc354e0021>\u001B[0m in \u001B[0;36m<module>\u001B[0;34m\u001B[0m\n\u001B[1;32m      2\u001B[0m \u001B[0mtext\u001B[0m\u001B[0;34m\u001B[0m\u001B[0;34m\u001B[0m\u001B[0m\n\u001B[1;32m      3\u001B[0m \u001B[0;34m\u001B[0m\u001B[0m\n\u001B[0;32m----> 4\u001B[0;31m \u001B[0mf\u001B[0m \u001B[0;34m=\u001B[0m \u001B[0mopen\u001B[0m\u001B[0;34m(\u001B[0m\u001B[0;34m\"data/all_comments.txt\"\u001B[0m\u001B[0;34m,\u001B[0m \u001B[0;34m\"x\"\u001B[0m\u001B[0;34m)\u001B[0m\u001B[0;34m\u001B[0m\u001B[0;34m\u001B[0m\u001B[0m\n\u001B[0m\u001B[1;32m      5\u001B[0m \u001B[0mf\u001B[0m\u001B[0;34m.\u001B[0m\u001B[0mwrite\u001B[0m\u001B[0;34m(\u001B[0m\u001B[0mtext\u001B[0m\u001B[0;34m)\u001B[0m\u001B[0;34m\u001B[0m\u001B[0;34m\u001B[0m\u001B[0m\n\u001B[1;32m      6\u001B[0m \u001B[0mf\u001B[0m\u001B[0;34m.\u001B[0m\u001B[0mclose\u001B[0m\u001B[0;34m(\u001B[0m\u001B[0;34m)\u001B[0m\u001B[0;34m\u001B[0m\u001B[0;34m\u001B[0m\u001B[0m\n",
+      "\u001B[0;31mFileNotFoundError\u001B[0m: [Errno 2] No such file or directory: 'data/all_comments.txt'"
+     ]
+    }
+   ],
+   "source": [
+    "text = \" \".join(comment for comment in comments)\n",
+    "text\n",
+    "\n",
+    "f = open(\"all_comments.txt\", \"x\")\n",
+    "f.write(text)\n",
+    "f.close()\n",
+    "\n"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "pycharm": {
+     "name": "#%%\n"
+    }
+   }
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
